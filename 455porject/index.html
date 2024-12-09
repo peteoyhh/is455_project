@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Search</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-image: url('/Users/xuchen/Desktop/455porject/DALL·E 2024-12-08 19.25.26 - A vibrant popcorn and movie-themed background. The design features a large red-and-white striped popcorn bucket with golden popcorn popping out at the.webp'); /* 替换为图片文件名 */
+            background-size: cover; /* 确保背景图片覆盖整个页面 */
+            background-position: center; /* 居中背景图片 */
+            background-repeat: no-repeat; /* 防止图片重复 */
+        }
+        .container {
+            max-width: 1200px;
+            margin: 50px auto;
+            background-color: rgba(255, 255, 255, 0.9); /* 添加半透明背景 */
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 12px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        #search-container {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        #search-field, #search-input, #search-button {
+            padding: 8px;
+            font-size: 16px;
+        }
+        #search-field {
+            flex-grow: 1;
+        }
+        #search-input {
+            flex-grow: 2;
+        }
+        #search-button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        #search-button:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Searchable JSON Data Viewer</h1>
+        <div id="search-container">
+            <select id="search-field">
+                <option value="Movie ID">Movie ID</option>
+                <option value="Title">Movie Title</option>
+                <option value="Company">Company Name</option>
+                <option value="Company Location">Company Location</option>
+                <option value="Director">Director Name</option>
+                <option value="Lead Actor">Actor Name</option>
+            </select>
+            <input type="text" id="search-input" placeholder="Enter search term...">
+            <button id="search-button">Search</button>
+        </div>
+        <div style="overflow-x: auto;"> <!-- 添加外部容器支持滚动 -->
+            <table id="json-table">
+                <thead>
+                    <tr id="json-table-header"></tr>
+                </thead>
+                <tbody id="json-table-body"></tbody>
+            </table>
+        </div>
+    </div>
+    <script>
+        // Define your JSON data here
+        const jsonData = [
+  {
+    "Movie ID": "M1001",
+    "Title": "The Matrix",
+    "Duration": 136,
+    "Description": "A hacker discovers the true nature of reality.",
+    "Where to Watch": "HBO Max",
+    "Release Date": "1999-03-31",
+    "Language": "English",
+    "Company": "Warner Bros.",
+    "Company Location": "Los Angeles, CA",
+    "IMDb ID": "tt0133093",
+    "Director": "Lana Wachowski",
+    "Lead Actor": "Keanu Reeves",
+    "Rating Score": 9,
+    "Votes Count": 5000,
+    "Country": "US",
+    "Genre": "Action"
+  },
+  {
+    "Movie ID": "M1002",
+    "Title": "Inception",
+    "Duration": 148,
+    "Description": "A thief steals secrets through dream invasion.",
+    "Where to Watch": "Netflix",
+    "Release Date": "2010-07-16",
+    "Language": "English",
+    "Company": "Legendary Pictures",
+    "Company Location": "Burbank, CA",
+    "IMDb ID": "tt1375666",
+    "Director": "Christopher Nolan",
+    "Lead Actor": "Leonardo DiCaprio",
+    "Rating Score": 8,
+    "Votes Count": 4500,
+    "Country": "US",
+    "Genre": "Sci-Fi"
+  },
+  {
+    "Movie ID": "M1003",
+    "Title": "Spirited Away",
+    "Duration": 125,
+    "Description": "A young girl becomes trapped in a mysterious world.",
+    "Where to Watch": "Disney+",
+    "Release Date": "2001-07-20",
+    "Language": "Japanese",
+    "Company": "Studio Ghibli",
+    "Company Location": "Tokyo, Japan",
+    "IMDb ID": "tt0245429",
+    "Director": "Hayao Miyazaki",
+    "Lead Actor": "Rumi Hiiragi",
+    "Rating Score": 10,
+    "Votes Count": 6000,
+    "Country": "JP",
+    "Genre": "Animation"
+  },
+  {
+    "Movie ID": "M1004",
+    "Title": "Parasite",
+    "Duration": 132,
+    "Description": "A poor family schemes to infiltrate a wealthy household.",
+    "Where to Watch": "Hulu",
+    "Release Date": "2019-05-30",
+    "Language": "Korean",
+    "Company": "CJ Entertainment",
+    "Company Location": "Seoul, South Korea",
+    "IMDb ID": "tt6751668",
+    "Director": "Bong Joon-ho",
+    "Lead Actor": "Song Kang-ho",
+    "Rating Score": 9,
+    "Votes Count": 7000,
+    "Country": "KR",
+    "Genre": "Drama"
+  },
+  {
+    "Movie ID": "M1005",
+    "Title": "The Godfather",
+    "Duration": 175,
+    "Description": "The story of a mafia family.",
+    "Where to Watch": "Amazon Prime",
+    "Release Date": "1972-03-24",
+    "Language": "English",
+    "Company": "Paramount Pictures",
+    "Company Location": "Hollywood, CA",
+    "IMDb ID": "tt0068646",
+    "Director": "Francis Ford Coppola",
+    "Lead Actor": "Marlon Brando",
+    "Rating Score": 10,
+    "Votes Count": 8000,
+    "Country": "US",
+    "Genre": "Drama"
+  },
+  {
+    "Movie ID": "M1006",
+    "Title": "Interstellar",
+    "Duration": 169,
+    "Description": "Astronauts travel through a wormhole in search of a new home.",
+    "Where to Watch": "Netflix",
+    "Release Date": "2014-11-07",
+    "Language": "English",
+    "Company": "Legendary Pictures",
+    "Company Location": "Burbank, CA",
+    "IMDb ID": "tt0816692",
+    "Director": "Christopher Nolan",
+    "Lead Actor": "Matthew McConaughey",
+    "Rating Score": 9,
+    "Votes Count": 7500,
+    "Country": "US",
+    "Genre": "Sci-Fi"
+  },
+  {
+    "Movie ID": "M1007",
+    "Title": "Pulp Fiction",
+    "Duration": 154,
+    "Description": "The lives of two mob hitmen, a boxer, and others intertwine.",
+    "Where to Watch": "Amazon Prime",
+    "Release Date": "1994-10-14",
+    "Language": "English",
+    "Company": "Miramax",
+    "Company Location": "New York, NY",
+    "IMDb ID": "tt0110912",
+    "Director": "Quentin Tarantino",
+    "Lead Actor": "John Travolta",
+    "Rating Score": 9,
+    "Votes Count": 5500,
+    "Country": "US",
+    "Genre": "Comedy"
+  },
+  {
+    "Movie ID": "M1008",
+    "Title": "The Dark Knight",
+    "Duration": 152,
+    "Description": "Batman faces the Joker, a criminal mastermind.",
+    "Where to Watch": "HBO Max",
+    "Release Date": "2008-07-18",
+    "Language": "English",
+    "Company": "Warner Bros.",
+    "Company Location": "Los Angeles, CA",
+    "IMDb ID": "tt0468569",
+    "Director": "Christopher Nolan",
+    "Lead Actor": "Christian Bale",
+    "Rating Score": 10,
+    "Votes Count": 9000,
+    "Country": "US",
+    "Genre": "Action"
+  },
+  {
+    "Movie ID": "M1009",
+    "Title": "The Lion King",
+    "Duration": 88,
+    "Description": "A lion cub flees his kingdom after the murder of his father.",
+    "Where to Watch": "Disney+",
+    "Release Date": "1994-06-15",
+    "Language": "English",
+    "Company": "Studio Ghibli",
+    "Company Location": "Tokyo, Japan",
+    "IMDb ID": "tt0110357",
+    "Director": "Roger Allers",
+    "Lead Actor": "Matthew Broderick",
+    "Rating Score": 8,
+    "Votes Count": 4000,
+    "Country": "US",
+    "Genre": "Animation"
+  },
+  {
+    "Movie ID": "M1010",
+    "Title": "Avatar",
+    "Duration": 162,
+    "Description": "Humans colonize a distant planet inhabited by the Na'vi.",
+    "Where to Watch": "Disney+",
+    "Release Date": "2009-12-18",
+    "Language": "English",
+    "Company": "20th Century Fox",
+    "Company Location": "Los Angeles, CA",
+    "IMDb ID": "tt0499549",
+    "Director": "James Cameron",
+    "Lead Actor": "Sam Worthington",
+    "Rating Score": 9,
+    "Votes Count": 9500,
+    "Country": "US",
+    "Genre": "Fantasy"
+  }
+];
+
+            // Add more JSON objects as needed
+
+         document.addEventListener('DOMContentLoaded', function() {
+            displayData(jsonData);
+
+            function displayData(data) {
+                const tableHeader = document.getElementById('json-table-header');
+                const tableBody = document.getElementById('json-table-body');
+                tableHeader.innerHTML = '';
+                tableBody.innerHTML = '';
+
+                if (data.length > 0) {
+                    // Create table header
+                    Object.keys(data[0]).forEach(key => {
+                        const th = document.createElement('th');
+                        th.textContent = key;
+                        tableHeader.appendChild(th);
+                    });
+
+                    // Populate table body
+                    data.forEach(item => {
+                        const row = document.createElement('tr');
+                        Object.values(item).forEach(value => {
+                            const cell = document.createElement('td');
+                            cell.textContent = value;
+                            row.appendChild(cell);
+                        });
+                        tableBody.appendChild(row);
+                    });
+                }
+            }
+
+            document.getElementById('search-button').addEventListener('click', function() {
+                const searchField = document.getElementById('search-field').value;
+                const searchTerm = document.getElementById('search-input').value.toLowerCase();
+
+                const filteredData = jsonData.filter(item => {
+                    const fieldValue = String(item[searchField]).toLowerCase();
+                    return fieldValue.includes(searchTerm);
+                });
+
+                displayData(filteredData);
+            });
+        });
+    </script>
+</body>
+</html>
